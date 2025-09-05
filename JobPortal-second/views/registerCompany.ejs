@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Company | Elevate Workforce Solutions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+        /* Reset and base */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333e59; /* Dim dark blue */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Container */
+        .form-container {
+            background: #f9fafb; /* Very light gray for subtle contrast */
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 420px;
+            padding: 40px 32px 48px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            border: 1px solid #dde3ea; /* subtle border */
+        }
+
+        /* Header */
+        .form-container h2 {
+            margin: 0;
+            font-size: 2.25rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: #2c3e50; /* dark slate blue */
+            text-align: center;
+            user-select: none;
+        }
+
+        /* Form styling */
+        form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Form groups */
+        .form-group {
+            position: relative;
+            width: 100%;
+        }
+
+        /* Inputs and Textarea */
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 2px solid #a8b1c2; /* dim blue-gray */
+            background-color: #ffffff;
+            color: #2c3e50; /* dark slate blue */
+            font-size: 1rem;
+            font-weight: 400;
+            outline-offset: 3px;
+            outline-color: transparent;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            border-color: #4a90e2; /* dimmed blue accent */
+            background-color: #f0f5ff;
+            outline-color: #4a90e2;
+            outline-offset: 0;
+            box-shadow: 0 0 8px #4a90e277;
+        }
+
+        /* Placeholder color */
+        ::placeholder {
+            color: #8a9bb8;
+            font-weight: 300;
+            font-style: italic;
+        }
+
+        /* Labels */
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #556987;
+            margin-bottom: 6px;
+            user-select: none;
+        }
+
+        /* Button */
+        button.btn {
+            background: linear-gradient(135deg, #5b7ebd, #3a5cab);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            padding: 15px 0;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(58, 92, 171, 0.6);
+            transition: background 0.4s ease, transform 0.2s ease;
+            user-select: none;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        button.btn:hover,
+        button.btn:focus {
+            background: linear-gradient(135deg, #3a5cab, #5b7ebd);
+            transform: scale(1.05);
+            box-shadow: 0 12px 25px rgba(58, 92, 171, 0.9);
+            outline: none;
+        }
+
+        button.btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 6px 12px rgba(58, 92, 171, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .form-container {
+                padding: 32px 24px 40px;
+            }
+            .form-container h2 {
+                font-size: 1.8rem;
+            }
+            input[type="text"],
+            textarea {
+                font-size: 0.9rem;
+                padding: 12px 14px;
+            }
+            button.btn {
+                font-size: 1rem;
+                padding: 13px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="form-container" aria-label="Company Registration Form">
+        <h2>Register Company</h2>
+        <form id="companyForm">
+            <div class="form-group">
+                <label for="companyName">Company Name:</label>
+                <input type="text" id="companyName" placeholder="Enter company name" required>
+            </div>
+            <div class="form-group">
+                <label for="registrationNumber">Registration Number:</label>
+                <input type="text" id="registrationNumber" placeholder="Enter registration number" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" placeholder="Enter company description" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="website">Website URL:</label>
+                <input type="text" id="website" placeholder="Enter website URL" required>
+            </div>
+            <div class="form-group">
+                <label for="logoUrl">Logo URL:</label>
+                <input type="text" id="logoUrl" placeholder="Enter logo URL" required>
+            </div>
+            <button type="submit" class="btn">Register Company</button>
+        </form>
+    </main>
+
+    <script>
+        // Retrieve userId from the query parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('userId');
+
+        if (!userId) {
+            alert('User  ID is missing. Please register as a user first.');
+            window.location.href = '/register.html'; // Redirect to registration page
+        }
+
+        // Handle company registration form submission
+        document.getElementById('companyForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const companyName = document.getElementById('companyName').value;
+            const registrationNumber = document.getElementById('registrationNumber').value;
+            const description = document.getElementById('description').value;
+            const website = document.getElementById('website').value;
+            const logoUrl = document.getElementById('logoUrl').value;
+
+            try {
+                const response = await fetch('/api/company/createCompany', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userId: userId,
+                        companyName: companyName,
+                        registrationNumber: registrationNumber,
+                        description: description,
+                        website: website,
+                        logoUrl: logoUrl,
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to register company');
+                }
+
+                alert('Company registered successfully! Redirecting to login...');
+                window.location.href = '/login'; // Redirect to login page
+            } catch (error) {
+                console.error('Error registering company:', error);
+                alert('Error registering company. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>

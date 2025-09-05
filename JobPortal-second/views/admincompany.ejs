@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Companies | Elevate Workforce Solutions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      color: #333;
+    }
+
+    header {
+      background: #e0e7ff;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      border-radius: 0 0 20px 20px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-family: 'Comic Neue', cursive;
+      margin-left: 100px;
+      font-size: 28px;
+    }
+
+    .logout-btn {
+      background: #ff4d4d;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: #ff1a1a;
+    }
+
+    #content {
+      flex-grow: 1;
+      padding: 40px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #578FCA;
+      color: white;
+    }
+
+    .action-buttons button {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 5px;
+      margin-right: 5px;
+      cursor: pointer;
+    }
+
+    .verify {
+      background-color: green;
+      color: white;
+    }
+
+    .verify:hover {
+      background-color: darkgreen;
+    }
+
+    .delete {
+      background-color: red;
+      color: white;
+    }
+
+    .delete:hover {
+      background-color: darkred;
+    }
+
+    footer {
+      background: #e0e7ff;
+      padding: 20px 0;
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+      border-radius: 20px 20px 0 0;
+    }
+
+    footer a {
+      text-decoration: none;
+      font-family: 'Comic Neue', cursive;
+      color: #333;
+      font-weight: bold;
+    }
+
+    footer a:hover {
+      color: #007bff;
+    }
+
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 20px;
+        margin-left: 20px;
+      }
+
+      .logout-btn {
+        padding: 8px 12px;
+      }
+
+      #content {
+        padding: 20px;
+      }
+
+      table {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Elevate Workforce Solutions</h1>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </header>
+
+  <div id="content">
+    <h2>🏢 Companies</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Company Name</th>
+          <th>Registration Number</th>
+          <th>Is Verified</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="companiesList"></tbody>
+    </table>
+  </div>
+
+  <footer>
+    <a href="/admindashbord">Admin Users</a>
+    <a href="/admincompany">Companies</a>
+    <a href="/adminContact">Contacts</a>
+  </footer>
+
+  <script>
+    async function logout() {
+      try {
+        const res = await fetch('/api/user/logout', {
+          method: 'POST',
+          credentials: 'include'
+        });
+        if (res.ok) window.location.href = '/login';
+      } catch (err) {
+        console.error('Logout failed:', err);
+      }
+    }
+
+    async function fetchCompanies() {
+      try {
+        const response = await fetch('/api/company/getAllCompany');
+        if (!response.ok) throw new Error('Failed to fetch companies');
+        const companies = await response.json();
+        displayCompanies(companies);
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+      }
+    }
+
+    function displayCompanies(companies) {
+      const companiesList = document.getElementById('companiesList');
+      companiesList.innerHTML = '';
+
+      companies.forEach(company => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${company.id}</td>
+          <td>${company.companyName}</td>
+          <td>${company.registrationNumber}</td>
+          <td>
+            <button class="verify" onclick="toggleVerification(${company.id}, ${company.isVerified}, this)">
+              ${company.isVerified ? 'Unverify' : 'Verify'}
+            </button>
+          </td>
+          <td class="action-buttons">
+            <button class="delete" onclick="deleteCompany(${company.id})">Delete</button>
+          </td>
+        `;
+        companiesList.appendChild(row);
+      });
+    }
+
+    async function toggleVerification(companyId, currentStatus, buttonElement) {
+      const newStatus = !currentStatus;
+      buttonElement.textContent = "Processing...";
+
+      try {
+        const res = await fetch('/api/company/adminUpdateStatus', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ companyId, isVerified: newStatus })
+        });
+
+        if (!res.ok) throw new Error(await res.text());
+
+        buttonElement.textContent = newStatus ? 'Unverify' : 'Verify';
+        buttonElement.style.backgroundColor = newStatus ? "darkred" : "darkgreen";
+        buttonElement.onclick = () => toggleVerification(companyId, newStatus, buttonElement);
+      } catch (err) {
+        console.error('Verification error:', err);
+        buttonElement.textContent = currentStatus ? 'Unverify' : 'Verify';
+      }
+    }
+
+    function deleteCompany(companyId) {
+      fetch(`/api/company/deleteById/${companyId}`, { method: 'DELETE' })
+        .then(res => {
+          if (!res.ok) throw new Error('Delete failed');
+          fetchCompanies();
+        })
+        .catch(err => console.error('Delete error:', err));
+    }
+
+    window.onload = fetchCompanies;
+  </script>
+</body>
+</html>

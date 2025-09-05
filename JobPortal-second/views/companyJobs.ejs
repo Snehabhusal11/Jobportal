@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Company Jobs | Elevate Workforce Solutions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f0f4f8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #e0e7ff;
+            color: #333;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 0 0 20px 20px;
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin: 0;
+            margin-left: 100px;
+            font-family: 'Comic Neue', cursive;
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        .logout-btn {
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #ff1a1a;
+        }
+
+        #content {
+            padding: 40px;
+            flex-grow: 1;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .job-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .job-card {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .job-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: white;
+        }
+
+        .open {
+            background-color: green;
+        }
+
+        .closed {
+            background-color: red;
+        }
+
+        footer {
+            background: #e0e7ff;
+            color: #333;
+            padding: 20px 0;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-around;
+            position: sticky;
+            bottom: 0;
+            width: 100%;
+        }
+
+        footer a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            margin: 0 20px;
+            font-family: 'Comic Neue', cursive;
+            transition: color 0.3s;
+        }
+
+        footer a:hover {
+            color: #007bff;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 20px;
+                margin-left: 20px;
+            }
+
+            .logout-btn {
+                padding: 5px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Elevate Workforce Solutions</h1>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </header>
+
+    <div id="content">
+        <h2 style="text-align: center;">💼 Company Jobs</h2>
+        
+        <div class="job-list" id="jobsList"></div>
+    </div>
+
+    <footer>
+        <a href="/company">Home</a>
+        <a href="/companyJobs">Jobs</a>
+        <a href="/jobapplicationCompany">Job Applications</a>
+        <a href="/contactCompany">Contact</a>
+    </footer>
+
+    <script>
+        async function logout() {
+            try {
+                const response = await fetch('/api/user/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    window.location.href = '/login';
+                } else {
+                    console.error('Logout failed');
+                }
+            } catch (error) {
+                console.error('Error during logout:', error);
+            }
+        }
+
+        async function fetchCompanyJobs() {
+            try {
+                const response = await fetch('/api/job/getAlljob');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const jobs = await response.json();
+                displayJobs(jobs);
+            } catch (error) {
+                console.error('Error fetching jobs:', error);
+                document.getElementById('jobsList').innerHTML = '<p>Error fetching jobs</p>';
+            }
+        }
+
+        function displayJobs(jobs) {
+            const jobsList = document.getElementById('jobsList');
+            jobsList.innerHTML = '';
+
+            if (jobs.length === 0) {
+                jobsList.innerHTML = '<p>No jobs found.</p>';
+                return;
+            }
+
+            jobs.forEach(job => {
+                const jobCard = document.createElement('div');
+                jobCard.className = 'job-card';
+                jobCard.innerHTML = `
+                    <h3>${job.title}</h3>
+                    <p><strong>Description:</strong> ${job.description || 'No description available.'}</p>
+                    <p><strong>Status:</strong> <span class="job-status ${job.status === 'Open' ? 'open' : 'closed'}">${job.status}</span></p>
+                `;
+                jobsList.appendChild(jobCard);
+            });
+        }
+
+        fetchCompanyJobs();
+    </script>
+</body>
+</html>

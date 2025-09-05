@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Job Applications | Elevate Workforce Solutions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f0f4f8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #e0e7ff;
+            color: #333;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 0 0 20px 20px;
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin: 0;
+            margin-left: 100px;
+            font-family: 'Comic Neue', cursive;
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        .logout-btn {
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #ff1a1a;
+        }
+
+        #content {
+            padding: 40px;
+            flex-grow: 1;
+        }
+
+        .job-card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .application-card {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .application-card p {
+            margin: 5px 0;
+        }
+
+        .action-buttons {
+            margin-top: 10px;
+        }
+
+        .action-buttons button {
+            padding: 8px 16px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .accept {
+            background-color: green;
+            color: white;
+        }
+
+        .accept:hover {
+            background-color: darkgreen;
+        }
+
+        .reject {
+            background-color: red;
+            color: white;
+        }
+
+        .reject:hover {
+            background-color: darkred;
+        }
+
+        footer {
+            background: #e0e7ff;
+            color: #333;
+            padding: 20px 0;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-around;
+            position: sticky;
+            bottom: 0;
+            width: 100%;
+        }
+
+        footer a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            margin: 0 20px;
+            font-family: 'Comic Neue', cursive;
+            transition: color 0.3s;
+        }
+
+        footer a:hover {
+            color: #007bff;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 20px;
+                margin-left: 20px;
+            }
+
+            .logout-btn {
+                padding: 5px 10px;
+            }
+
+            #content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Elevate Workforce Solutions</h1>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </header>
+
+    <div id="content">
+        <h2>📄 Job Applications</h2>
+        <div id="applicationsList"></div>
+    </div>
+
+    <footer>
+        <a href="/company">Home</a>
+        <a href="/companyJobs">Jobs</a>
+        <a href="/jobapplicationCompany">Job Applications</a>
+        <a href="/contactCompany">Contact</a>
+    </footer>
+
+    <script>
+        async function logout() {
+            try {
+                const response = await fetch('/api/user/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    window.location.href = '/login';
+                } else {
+                    console.error('Logout failed');
+                }
+            } catch (error) {
+                console.error('Error during logout:', error);
+            }
+        }
+
+        async function fetchJobApplications() {
+            try {
+                const response = await fetch('/api/jobApplication/getCompanyJobapplication');
+                if (!response.ok) throw new Error('Failed to fetch applications');
+                const applications = await response.json();
+                displayApplications(applications);
+            } catch (error) {
+                console.error('Error fetching applications:', error);
+                document.getElementById('applicationsList').innerHTML = '<p>Error fetching applications</p>';
+            }
+        }
+
+        function displayApplications(applications) {
+            const applicationsList = document.getElementById('applicationsList');
+            applicationsList.innerHTML = '';
+
+            if (applications.length === 0) {
+                applicationsList.innerHTML = '<p>No applications found.</p>';
+                return;
+            }
+
+            const groupedApplications = applications.reduce((acc, app) => {
+                if (!acc[app.jobId]) {
+                    acc[app.jobId] = [];
+                }
+                acc[app.jobId].push(app);
+                return acc;
+            }, {});
+
+            for (const jobId in groupedApplications) {
+                const jobApplications = groupedApplications[jobId];
+                const jobCard = document.createElement('div');
+                jobCard.className = 'job-card';
+                jobCard.innerHTML = `<h3>Job ID: ${jobId}</h3>`;
+
+                jobApplications.forEach(app => {
+                    if (!app.id) {
+                        console.error("Error: app.id is undefined!");
+                        return;
+                    }
+
+                    const appCard = document.createElement('div');
+                    appCard.className = 'application-card';
+                    appCard.innerHTML = `
+                        <p><strong>User ID:</strong> ${app.userId}</p>
+                        <p><strong>Resume:</strong> <a href="${app.resume}" target="_blank">View Resume</a></p>
+                        <p><strong>Cover Letter:</strong> ${app.coverLetter || 'No cover letter provided.'}</p>
+                        <p><strong>Status:</strong> ${app.status || 'Pending'}</p>
+                        <div class="action-buttons">
+                            <button class="accept" onclick="updateApplicationStatus('${app.id}', 'accepted')">Accept</button>
+                            <button class="reject" onclick="updateApplicationStatus('${app.id}', 'rejected')">Reject</button>
+                        </div>
+                    `;
+                    jobCard.appendChild(appCard);
+                });
+
+                applicationsList.appendChild(jobCard);
+            }
+        }
+
+        async function updateApplicationStatus(appId, newStatus) {
+            if (!appId) {
+                console.error("Error: appId is undefined!");
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/jobApplication/updateStatus', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ applicationId: appId, status: newStatus })
+                });
+
+                if (!response.ok) throw new Error('Failed to update status');
+                fetchJobApplications();
+            } catch (error) {
+                console.error('Error updating status:', error);
+            }
+        }
+
+        window.onload = fetchJobApplications;
+    </script>
+</body>
+</html>

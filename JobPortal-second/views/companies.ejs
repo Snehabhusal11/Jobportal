@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registered Companies</title>
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"> <!-- New font for content -->
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      color: #333;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      background: #e0e7ff;
+      color: #333;
+      padding: 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 0 0 20px 20px;
+    }
+
+    header h1 {
+      font-size: 28px;
+      margin: 0;
+      margin-left: 100px;
+      font-family: 'Comic Neue', cursive;
+      flex-grow: 1;
+      text-align: left;
+    }
+
+    .logout-btn {
+      background: #ff4d4d;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: #ff1a1a;
+    }
+
+    /* Main Content */
+    #content {
+      padding: 40px;
+      flex-grow: 1;
+      font-family: 'Roboto', sans-serif; /* New font for main content */
+    }
+
+    .company-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .company-card {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .company-card h3 {
+      margin-top: 0;
+    }
+
+    /* Footer */
+    footer {
+      background: #e0e7ff;
+      color: #333;
+      padding: 20px 0;
+      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-around;
+      position: sticky;
+      bottom: 0;
+      width: 100%;
+    }
+
+    footer a {
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+      margin: 0 20px;
+      font-family: 'Comic Neue', cursive; /* Fun font for footer links */
+      transition: color 0.3s;
+    }
+
+    footer a:hover {
+      color: #007bff;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 20px;
+        margin-left: 20px;
+      }
+
+      .logout-btn {
+        padding: 5px 10px;
+      }
+
+      .company-list {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <h1>Elevate Workforce Solutions</h1>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </header>
+
+  <!-- Main Content -->
+  <div id="content">
+    <h2>🏢 Registered Companies</h2>
+    <div class="company-list" id="companiesList"></div>
+  </div>
+
+  <!-- Footer Navigation -->
+  <footer>
+    <a href="/jobs">Home</a>
+    <a href="/companies">Companies</a>
+    <a href="/jobapplication">Job Applications</a>
+    <a href="/contact">Contact</a>
+  </footer>
+
+  <script>
+    // Fetch companies
+    async function fetchCompanies() {
+      try {
+        const response = await fetch('/api/company/getAllCompany');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const companies = await response.json();
+        displayCompanies(companies);
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+        document.getElementById('companiesList').innerHTML = '<p>Error fetching companies</p>';
+      }
+    }
+
+    // Display companies
+    function displayCompanies(companies) {
+      const companiesList = document.getElementById('companiesList');
+      companiesList.innerHTML = '';
+
+      if (companies.length === 0) {
+        companiesList.innerHTML = '<p>No companies found.</p>';
+        return;
+      }
+
+      companies.forEach(company => {
+        const card = document.createElement('div');
+        card.className = 'company-card';
+        card.innerHTML = `
+          <h3>${company.companyName}</h3>
+          <p><strong>Registration Number:</strong> ${company.registrationNumber}</p>
+          <p><strong>Description:</strong> ${company.description || 'No description available.'}</p>
+          <p><strong>Website:</strong> <a href="${company.website}" target="_blank">${company.website}</a></p>
+          <div>
+            <strong>Verification Status:</strong>
+            <span>${company.isVerified ? '✔️' : '❌'}</span> <!-- Changed to checkmark and cross -->
+          </div>
+        `;
+        companiesList.appendChild(card);
+      });
+    }
+
+    // Logout function
+    async function logout() {
+      try {
+        const response = await fetch('/api/user/logout', {
+          method: 'POST',
+          credentials: 'include'
+        });
+        if (response.ok) {
+          window.location.href = '/login';
+        } else {
+          console.error('Logout failed');
+        }
+      } catch (error) {
+        console.error('Error during logout:', error);
+      }
+    }
+
+    // Load companies on page load
+    window.onload = fetchCompanies;
+  </script>
+</body>
+</html>
